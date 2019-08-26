@@ -26,7 +26,6 @@ local DELAY = 500
 
 -- Create viewer
 local viewer = View.create()
-viewer:setID('viewer2D')
 
 -- Setup graphical overlay attributes
 local decoration = View.ShapeDecoration.create()
@@ -45,22 +44,19 @@ textDec:setPosition(20, 50)
 -- Viewing image with text label
 --@show(img:Image, name:string)
 local function show(img, name)
-  viewer:addImage(img)
-  viewer:addText(name, textDec)
+  viewer:clear()
+  local imid = viewer:addImage(img)
+  viewer:addText(name, textDec, nil, imid)
   viewer:present()
   Script.sleep(DELAY * 2) -- for demonstration purpose only
 end
 
-
 local function main()
   local img = Image.load('resources/ColorBlobLength.bmp')
-  viewer:clear()
-  viewer:add(img)
-  viewer:present()
-  Script.sleep(DELAY * 4) -- for demonstration purpose only
+  show(img, 'Input image')
 
   -- Converting to HSV color space (Hue, Saturation, Value)
-  local H, S, V = Image.toHSV(img)
+  local H, S, V = img:toHSV()
   show(H, 'Hue') -- View image with text label and delay
   show(S, 'Saturation')
   show(V, 'Value')
@@ -76,7 +72,8 @@ local function main()
   local blueObjects = blueRegion:findConnected(100)
 
   -- Measuring length and drawing bounding box
-  viewer:addImage(img)
+  viewer:clear()
+  local imid = viewer:addImage(img)
   textDec:setSize(20)
 
   for i = 1, #blueObjects do
@@ -84,15 +81,17 @@ local function main()
     local center, width, height, _ = minRectangle:getRectangleParameters()
     local longSide = math.max(width, height)
 
-    -- Draw feedback overlay
-    viewer:add(minRectangle, decoration)
     local label = math.floor(longSide * 10) / 10
     textDec:setPosition(center:getX(), center:getY())
-    viewer:addText(tostring(label), textDec)
+
+    -- Draw feedback overlay
+    viewer:addShape(minRectangle, decoration, nil, imid)
+    viewer:addText(tostring(label), textDec, nil, imid)
     viewer:present() -- presenting single steps
     print('Length ' .. i .. ': ' .. label)
     Script.sleep(DELAY) -- for demonstration purpose only
   end
+
   print('App finished.')
 end
 --The following registration is part of the global scope which runs once after startup
