@@ -25,7 +25,7 @@
 local DELAY = 500
 
 -- Create viewer
-local viewer = View.create()
+local viewer = View.create("viewer2D1")
 
 -- Setup graphical overlay attributes
 local decoration = View.ShapeDecoration.create()
