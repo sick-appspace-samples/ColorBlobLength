@@ -5,7 +5,7 @@
 local DELAY = 500
 
 -- Create viewer
-local viewer = View.create("viewer2D1")
+local viewer = View.create()
 
 -- Setup graphical overlay attributes
 local decoration = View.ShapeDecoration.create()
@@ -21,12 +21,13 @@ textDec:setPosition(20, 50)
 
 --Start of Function and Event Scope---------------------------------------------
 
--- Viewing image with text label
---@show(img:Image, name:string)
+---Viewing image with text label
+---@param img Image
+---@param name string
 local function show(img, name)
   viewer:clear()
-  local imid = viewer:addImage(img)
-  viewer:addText(name, textDec, nil, imid)
+  viewer:addImage(img)
+  viewer:addText(name, textDec)
   viewer:present()
   Script.sleep(DELAY * 2) -- for demonstration purpose only
 end
@@ -53,20 +54,20 @@ local function main()
 
   -- Measuring length and drawing bounding box
   viewer:clear()
-  local imid = viewer:addImage(img)
+  viewer:addImage(img)
   textDec:setSize(20)
 
-  for i = 1, #blueObjects do
-    local minRectangle = blueObjects[i]:getBoundingBoxOriented(H)
-    local center, width, height, _ = minRectangle:getRectangleParameters()
-    local longSide = math.max(width, height)
+  local minRectangles = blueObjects:getBoundingBoxOriented(H)
+  local centers, widths, heights, _ = minRectangles:getRectangleParameters()
+  for i = 1, #centers do
+    local longSide = math.max(widths[i], heights[i])
 
     local label = math.floor(longSide * 10) / 10
-    textDec:setPosition(center:getX(), center:getY())
+    textDec:setPosition(centers[i]:getX(), centers[i]:getY())
 
     -- Draw feedback overlay
-    viewer:addShape(minRectangle, decoration, nil, imid)
-    viewer:addText(tostring(label), textDec, nil, imid)
+    viewer:addShape(minRectangles, decoration)
+    viewer:addText(tostring(label), textDec)
     viewer:present() -- presenting single steps
     print('Length ' .. i .. ': ' .. label)
     Script.sleep(DELAY) -- for demonstration purpose only
